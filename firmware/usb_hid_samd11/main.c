@@ -38,7 +38,7 @@
 #include "usb.h"
 
 /*- Definitions -------------------------------------------------------------*/
-HAL_GPIO_PIN(BOOT_ENTER,      A, 9);
+HAL_GPIO_PIN(BOOT_ENTER,      A, 31);
 HAL_GPIO_PIN(LED,             A, 14);
 
 #define USB_EP_SEND           1
@@ -133,9 +133,6 @@ static bool bl_request(void)
 {
   HAL_GPIO_BOOT_ENTER_in();
   HAL_GPIO_BOOT_ENTER_pullup();
-
-  for (int i = 0; i < 2000; i++)
-    asm("nop");
 
   if (0 == HAL_GPIO_BOOT_ENTER_read())
     return true;
