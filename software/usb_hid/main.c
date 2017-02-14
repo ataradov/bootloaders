@@ -346,7 +346,7 @@ static void parse_command_line(int argc, char **argv)
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
-  usb_hid_device_t devices[16];
+  usb_hid_device_t devices[256];
   int n_devices;
   usb_hid_device_t *device = NULL;
 
@@ -354,7 +354,7 @@ int main(int argc, char **argv)
 
   usb_hid_init();
 
-  n_devices = usb_hid_enumerate(devices, 16);
+  n_devices = usb_hid_enumerate(devices, 256);
 
   for (int i = 0; i < n_devices; i++)
   {
