@@ -38,8 +38,18 @@
 #include "usb.h"
 
 /*- Definitions -------------------------------------------------------------*/
-HAL_GPIO_PIN(BOOT_ENTER,      A, 31);
-HAL_GPIO_PIN(LED,             A, 14);
+//#define BOARD_SWD_USB_MINI
+#define BOARD_SWD_USB_STD
+
+#if defined(BOARD_SWD_USB_MINI)
+  HAL_GPIO_PIN(LED, A, 14);
+#elif defined(BOARD_SWD_USB_STD)
+  HAL_GPIO_PIN(LED, A, 4);
+#else
+  #error Undefined board
+#endif
+
+HAL_GPIO_PIN(BOOT_ENTER, A, 31);
 
 #define USB_EP_SEND           1
 #define USB_EP_RECV           2
