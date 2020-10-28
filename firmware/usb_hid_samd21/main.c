@@ -38,18 +38,7 @@
 #include "usb.h"
 
 /*- Definitions -------------------------------------------------------------*/
-//#define BOARD_SWD_USB_MINI
-#define BOARD_SWD_USB_STD
-
-#if defined(BOARD_SWD_USB_MINI)
-  HAL_GPIO_PIN(LED, A, 14);
-#elif defined(BOARD_SWD_USB_STD)
-  HAL_GPIO_PIN(LED, A, 4);
-#else
-  #error Undefined board
-#endif
-
-HAL_GPIO_PIN(BOOT_ENTER, A, 31);
+HAL_GPIO_PIN(BOOT_ENTER,      B, 0);
 
 #define USB_EP_SEND           1
 #define USB_EP_RECV           2
@@ -306,25 +295,11 @@ void usb_configuration_callback(int config)
 }
 
 //-----------------------------------------------------------------------------
-static void led_task(void)
-{
-  static int cnt = 0;
-
-  if (100000 == cnt++)
-  {
-    HAL_GPIO_LED_toggle();
-    cnt = 0;
-  }
-}
-
-//-----------------------------------------------------------------------------
 __attribute__ ((noinline))
 int main(void)
 {
   if (!bl_request())
     run_application();
-
-  HAL_GPIO_LED_out();
 
   sys_init();
   usb_init();
@@ -332,7 +307,6 @@ int main(void)
   while (1)
   {
     usb_task();
-    led_task();
   }
 
   return 0;

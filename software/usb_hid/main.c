@@ -42,7 +42,7 @@
 #include "usb_hid.h"
 
 /*- Definitions -------------------------------------------------------------*/
-#define VERSION               "v0.1"
+#define VERSION               "v0.2"
 
 #define PAGE_SIZE              64
 #define ERASE_SIZE             256
@@ -91,16 +91,18 @@ static const struct option long_options[] =
   { "offset",    required_argument,  0, 'o' },
   { "word",      required_argument,  0, 'w' },
   { "byte",      required_argument,  0, 'b' },
+  { "reset",     no_argument,        0, 'r' },
   { 0, 0, 0, 0 }
 };
 
-static const char *short_options = "hqf:o:w:b:";
+static const char *short_options = "hqf:o:w:b:r";
 
 static bool g_verbose = true;
 static char *g_file = NULL;
 static int g_offset = -1;
 static bool g_byte = false;
 static bool g_word = false;
+static bool g_reset = false;
 static uint32_t g_data;
 
 static uint32_t crc32_tab[256];
@@ -306,6 +308,30 @@ static void bl_cmd_verify(usb_hid_device_t *device, int offset, int size, uint32
 }
 
 //-----------------------------------------------------------------------------
+static void bl_cmd_reset(usb_hid_device_t *device, uint32_t w0, uint32_t w1, uint32_t w2, uint32_t w3)
+{
+  uint8_t req[24];
+  uint32_t *req_w = (uint32_t *)req;
+  int status;
+
+  verbose("Resetting...");
+
+  req[0] = BL_CMD_REBOOT;
+  req_w[1] = BL_REQUEST;
+  req_w[2] = w0;
+  req_w[3] = w1;
+  req_w[4] = w2;
+  req_w[5] = w3;
+
+  status = bl_command(device, req, 24);
+
+  if (BL_STATUS_CRC_OK == status)
+    verbose(" success.\n");
+  else
+    error_exit("reset (0x%02x)", status);
+}
+
+//-----------------------------------------------------------------------------
 static void print_help(char *name)
 {
   printf("USB HID bootloader " VERSION ", built " __DATE__ " " __TIME__ "\n");
@@ -317,6 +343,7 @@ static void print_help(char *name)
   printf("  -o, --offset <value>       location offset of the image or data\n");
   printf("  -b, --byte <value>         write a byte at the specified offset\n");
   printf("  -w, --word <value>         write a word (32-bit) at the specified offset\n");
+  printf("  -r, --reset                reset after the programming\n");
   exit(0);
 }
 
@@ -336,6 +363,7 @@ static void parse_command_line(int argc, char **argv)
       case 'o': g_offset = (int)strtoul(optarg, NULL, 0); break;
       case 'b': g_data = (uint32_t)strtoul(optarg, NULL, 0); g_byte = true; break;
       case 'w': g_data = (uint32_t)strtoul(optarg, NULL, 0); g_word = true; break;
+      case 'r': g_reset = true; break;
       default: exit(1); break;
     }
   }
@@ -392,6 +420,11 @@ int main(int argc, char **argv)
 
     bl_cmd_write(device, g_offset, info.data, info.aligned_size);
     bl_cmd_verify(device, g_offset, info.aligned_size, crc);
+  }
+
+  if (g_reset)
+  {
+    bl_cmd_reset(device, 0, 0, 0, 0);
   }
 
   usb_hid_close(device);
