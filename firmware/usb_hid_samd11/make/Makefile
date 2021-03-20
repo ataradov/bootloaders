@@ -21,7 +21,7 @@ CFLAGS += -fdata-sections -ffunction-sections
 CFLAGS += -funsigned-char -funsigned-bitfields
 CFLAGS += -mcpu=cortex-m0plus -mthumb
 CFLAGS += -MD -MP -MT $(BUILD)/$(*F).o -MF $(BUILD)/$(@F).d
-CFLAGS += -nostdlib
+CFLAGS += -nostdlib -ffreestanding
 
 LDFLAGS += -mcpu=cortex-m0plus -mthumb
 LDFLAGS += -Wl,--gc-sections
@@ -42,7 +42,7 @@ SRCS += \
 DEFINES += \
   -D__SAMD11C14A__ \
   -DDONT_USE_CMSIS_INIT \
-  -DF_CPU=48000000 
+  -DF_CPU=48000000
 
 CFLAGS += $(INCLUDES) $(DEFINES)
 
