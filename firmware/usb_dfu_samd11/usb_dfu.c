@@ -34,7 +34,6 @@
 
 /*- Variables ---------------------------------------------------------------*/
 static int usb_dfu_size = 0;
-static int usb_dfu_index = 0;
 static int usb_dfu_block = 0;
 
 static alignas(4) usb_dfu_status_t usb_dfu_status =
@@ -73,7 +72,6 @@ bool usb_dfu_handle_standard_request(usb_request_t *request)
       if (request->wLength)
       {
         usb_dfu_size  = request->wLength;
-        usb_dfu_index = request->wIndex;
         usb_dfu_block = request->wValue;
         usb_dfu_status.bState = USB_DFU_STATE_DNLOAD_SYNC;
       }
@@ -139,7 +137,7 @@ bool usb_dfu_handle_data(uint8_t *data, int size)
   for (int i = size; i < USB_DFU_TRANSFER_SIZE; i++)
     data[i] = 0xff;
 
-  int status = usb_dfu_data_callback(usb_dfu_index, usb_dfu_block, (uint32_t *)data);
+  int status = usb_dfu_data_callback(usb_dfu_block, (uint32_t *)data);
 
   if (USB_DFU_STATUS_OK != status)
   {

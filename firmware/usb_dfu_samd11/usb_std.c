@@ -60,6 +60,7 @@ static void usb_control_send_str(const char *str)
 bool usb_handle_standard_request(usb_request_t *request)
 {
   static alignas(4) uint8_t usb_config = 0;
+  static alignas(4) uint8_t usb_alt_setting = 0;
 
   switch ((request->bRequest << 8) | request->bmRequestType)
   {
@@ -120,6 +121,18 @@ bool usb_handle_standard_request(usb_request_t *request)
       usb_control_send(&usb_config, sizeof(uint8_t));
     } break;
 
+    case USB_CMD(OUT, INTERFACE, STANDARD, SET_INTERFACE):
+    {
+      usb_alt_setting = request->wValue;
+      usb_set_interface_callback(request->wIndex, usb_alt_setting);
+      usb_control_send_zlp();
+    } break;
+
+    case USB_CMD(IN, INTERFACE, STANDARD, GET_INTERFACE):
+    {
+      usb_control_send(&usb_alt_setting, sizeof(uint8_t));
+    } break;
+
     case USB_CMD(IN, DEVICE, STANDARD, GET_STATUS):
     case USB_CMD(IN, INTERFACE, STANDARD, GET_STATUS):
     case USB_CMD(IN, ENDPOINT, STANDARD, GET_STATUS):
@@ -146,8 +159,8 @@ bool usb_handle_standard_request(usb_request_t *request)
     {
       if (USB_MSFT_VENDOR_INDEX == request->wIndex)
       {
-        usb_control_send((uint8_t *)&usb_msft_compat_descriptor,
-            sizeof(usb_msft_compat_descriptor_t));
+        usb_control_send((uint8_t *)&usb_msft_compat_hierarchy,
+            sizeof(usb_msft_compat_hierarchy_t));
       }
       else
       {

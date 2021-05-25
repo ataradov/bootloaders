@@ -244,16 +244,21 @@ typedef struct PACK
   uint16_t wIndex;
   uint8_t  bCount;
   uint8_t  reserved[7];
-  // Interface
+} usb_msft_compat_descriptor_t;
+
+typedef struct PACK
+{
   uint8_t  bFirstInterfaceNumber;
   uint8_t  reserved1;
   uint8_t  compatibleID[8];
   uint8_t  subCompatibleID[8];
   uint8_t  reserved2[6];
-} usb_msft_compat_descriptor_t;
+} usb_msft_interface_descriptor_t;
 
 /*- Prototypes --------------------------------------------------------------*/
 bool usb_handle_standard_request(usb_request_t *request);
+
+void usb_set_interface_callback(int index, int alt_setting);
 
 #endif // _USB_STD_H_
 

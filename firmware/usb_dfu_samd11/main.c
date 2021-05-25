@@ -50,6 +50,7 @@ HAL_GPIO_PIN(BOOT_ENTER, A, 31);
 
 /*- Variables ---------------------------------------------------------------*/
 static uint32_t *ram = (uint32_t *)HMCRAMC0_ADDR;
+static int app_section_index = 0;
 
 /*- Implementations ---------------------------------------------------------*/
 
@@ -110,19 +111,26 @@ static bool bl_request(void)
 }
 
 //-----------------------------------------------------------------------------
-int usb_dfu_data_callback(int index, int block, uint32_t *data)
+void usb_set_interface_callback(int index, int alt_setting)
+{
+  app_section_index = alt_setting;
+  (void)index;
+}
+
+//-----------------------------------------------------------------------------
+int usb_dfu_data_callback(int block, uint32_t *data)
 {
   uint32_t addr = block * FLASH_PAGE_SIZE;
   uint32_t *flash;
 
-  if (DFU_INDEX_APP == index)
+  if (DFU_INDEX_APP == app_section_index)
   {
     if (addr > APP_SIZE)
       return USB_DFU_STATUS_ADDRESS;
 
     addr += BOOT_SIZE;
   }
-  else if (DFU_INDEX_BOOT == index)
+  else if (DFU_INDEX_BOOT == app_section_index)
   {
     if (addr > BOOT_SIZE)
       return USB_DFU_STATUS_ADDRESS;

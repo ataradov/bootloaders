@@ -120,7 +120,7 @@ typedef struct PACK
 /*- Prototypes --------------------------------------------------------------*/
 bool usb_dfu_handle_standard_request(usb_request_t *request);
 bool usb_dfu_handle_data(uint8_t *data, int size);
-int usb_dfu_data_callback(int index, int block, uint32_t *data);
+int usb_dfu_data_callback(int block, uint32_t *data);
 void usb_dfu_detach_callback(void);
 
 #endif // _USB_DFU_H_

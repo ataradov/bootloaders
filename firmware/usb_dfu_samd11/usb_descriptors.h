@@ -45,22 +45,31 @@ enum
   USB_STR_COUNT,
 };
 
-#define DFU_INDEX_BOOT   0
-#define DFU_INDEX_APP    1
+enum
+{
+  DFU_INDEX_BOOT,
+  DFU_INDEX_APP,
+};
 
 /*- Types -------------------------------------------------------------------*/
 typedef struct PACK
 {
   usb_configuration_descriptor_t     configuration;
   usb_interface_descriptor_t         interface_dfu_boot;
-  usb_dfu_descriptor_t               dfu_boot;
   usb_interface_descriptor_t         interface_dfu_app;
-  usb_dfu_descriptor_t               dfu_app;
+  usb_dfu_descriptor_t               dfu;
 } usb_configuration_hierarchy_t;
+
+typedef struct PACK
+{
+  usb_msft_compat_descriptor_t       compat;
+  usb_msft_interface_descriptor_t    interface;
+} usb_msft_compat_hierarchy_t;
 
 //-----------------------------------------------------------------------------
 extern const usb_device_descriptor_t usb_device_descriptor;
 extern const usb_configuration_hierarchy_t usb_configuration_hierarchy;
+extern const usb_msft_compat_hierarchy_t usb_msft_compat_hierarchy;
 extern const usb_string_descriptor_zero_t usb_string_descriptor_zero;
 extern const usb_msft_compat_descriptor_t usb_msft_compat_descriptor;
 extern const char *usb_strings[];
