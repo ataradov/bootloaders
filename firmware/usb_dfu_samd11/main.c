@@ -97,15 +97,15 @@ static bool bl_request(void)
   HAL_GPIO_BOOT_ENTER_in();
   HAL_GPIO_BOOT_ENTER_pullup();
 
-  if (0 == HAL_GPIO_BOOT_ENTER_read())
-    return true;
-
   if (BL_REQUEST == ram[0] && BL_REQUEST == ram[1] &&
       BL_REQUEST == ram[2] && BL_REQUEST == ram[3])
   {
     ram[0] = 0;
     return true;
   }
+
+  if (0 == HAL_GPIO_BOOT_ENTER_read())
+    return true;
 
   return false;
 }

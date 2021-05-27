@@ -80,5 +80,10 @@ clean:
 	@echo clean
 	@-rm -rf $(BUILD)
 
+dfu: $(BUILD)/$(BIN).bin
+	@echo DFU $@
+	@cp $(BUILD)/$(BIN).bin $(BUILD)/$(BIN).dfu
+	@dfu-suffix -a $(BUILD)/$(BIN).dfu -v ffff -p ffff -d ffff
+
 -include $(wildcard $(BUILD)/*.d)
 
