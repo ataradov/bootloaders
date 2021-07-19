@@ -37,6 +37,7 @@
 #include "usb.h"
 #include "usb_dfu.h"
 #include "hal_gpio.h"
+#include "nvm_data.h"
 
 /*- Definitions -------------------------------------------------------------*/
 HAL_GPIO_PIN(BOOT_ENTER, A, 31);
@@ -57,15 +58,19 @@ static int app_section_index = 0;
 //-----------------------------------------------------------------------------
 static void sys_init(void)
 {
+  uint32_t coarse, fine;
+
   NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_RWS(1) | NVMCTRL_CTRLB_CACHEDIS;
 
   PM->AHBMASK.reg  |= PM_AHBMASK_NVMCTRL;
   PM->APBBMASK.reg |= PM_APBBMASK_NVMCTRL;
 
+  coarse = NVM_READ_CAL(NVM_DFLL48M_COARSE_CAL);
+  fine = NVM_READ_CAL(NVM_DFLL48M_FINE_CAL);
+
   SYSCTRL->DFLLCTRL.reg = 0; // See Errata 9905
-  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP(1) | SYSCTRL_DFLLMUL_FSTEP(1) |
-      SYSCTRL_DFLLMUL_MUL(48000);
-  SYSCTRL->DFLLVAL.reg = SYSCTRL_DFLLVAL_COARSE(32) | SYSCTRL_DFLLVAL_FINE(512);
+  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_MUL(48000);
+  SYSCTRL->DFLLVAL.reg = SYSCTRL_DFLLVAL_COARSE(coarse) | SYSCTRL_DFLLVAL_FINE(fine);
   SYSCTRL->DFLLCTRL.reg = SYSCTRL_DFLLCTRL_ENABLE | SYSCTRL_DFLLCTRL_USBCRM |
       SYSCTRL_DFLLCTRL_MODE | SYSCTRL_DFLLCTRL_CCDIS;
 
@@ -75,7 +80,6 @@ static void sys_init(void)
       GCLK_GENCTRL_RUNSTDBY | GCLK_GENCTRL_GENEN;
   while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
 }
-
 
 //-----------------------------------------------------------------------------
 static void run_application(void)
